@@ -3,16 +3,16 @@ from selenium.webdriver.chrome.options import Options
 import time
 import pandas as pd
 import requests
-import datetime 
-
-##スクレイピングの準備
-options = Options()
-# options.add_argument('--headless')
-# driver = webdriver.Chrome("{ご自身のディレクトリ}chromedriver.exe", options=options)
-driver = webdriver.Chrome(options=options)
+import datetime
+from flask import Flask,request,render_template,jsonify
 
 # スクレピングの関数
 def scr(url):
+    ##スクレイピングの準備
+    options = Options()
+    # options.add_argument('--headless')
+    # driver = webdriver.Chrome("{ご自身のディレクトリ}chromedriver.exe", options=options)
+    driver = webdriver.Chrome(options=options)
     # 楽天の商品一覧
     driver.get(url)
     time.sleep(2)
@@ -57,8 +57,8 @@ def slack_Send(df):
     df.to_csv("test.csv")
     
     #  SLACK＿BOTのトークン
-    TOKEN = "{xoxb-2175746339216-2175777305248-Rtu2ejkTJptNPvtPzhr4pG8i}"
-    CHANNEL = "{C024950NXUN}"
+    TOKEN = "{ご自身のBOTS　API　TOKEN}"
+    CHANNEL = "{ご自身のCHANNEL ID}"
     
     #     作成したファイルをオープン
     files = {
@@ -67,8 +67,6 @@ def slack_Send(df):
     
     today = datetime.date.today()
     out_of_stock_rate = df.stock_flg.sum()/len(df)
-    
-    # headers = {"Authorization": "Bearer "+TOKEN}
 
     params = {
         'token':TOKEN,
@@ -80,11 +78,30 @@ def slack_Send(df):
     requests.post(url="https://slack.com/api/files.upload",params=params, files=files)
 
 # 実行部分
-def main():
-    url = "https://search.rakuten.co.jp/search/mall/ANKER/?f=0"
+# def main():
+#     url = "https://search.rakuten.co.jp/search/mall/ANKER/?f=0"
+#     df = scr(url)
+#     print(df)
+#     slack_send(df)
+
+#Flaskの設定
+app = Flask(__name__)
+
+@app.route("/")
+def check():
+    # htmlファイルをレンダリング
+    return render_template('index.html')
+
+@app.route('/output', methods=['POST'])
+def output():
+    #json形式でURLを受け取る
+    url = request.json['url1']
     df = scr(url)
     print(df)
-    slack_Send(df)
-    
+    out_of_stock_rate = df.stock_flg.sum()/len(df)
+    print(out_of_stock_rate)
+    return_data = {"result":round(out_of_stock_rate*100,1)}
+    return jsonify(ResultSet=return_data)
+
 if __name__ == "__main__":
-    main()
+    app.run()

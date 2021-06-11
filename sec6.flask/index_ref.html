@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+        integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <title>楽天在庫検知</title>
+</head>
+
+<body>
+    <div class="container my-5">
+        <h1>楽天在庫検知</h1>
+        <form>
+            <div class="mb-3">
+              <input type="text" class="form-control" id="url1" name="url1" placeholder="url1" aria-describedby="emailHelp">
+            </div>
+        </form>
+        <button type="button" class="btn btn-info my-3" id="button1">欠品率を算出</button>
+        <p id="stock">欠品率は</p>
+    </div>
+    <script type="text/javascript">
+        // 非同期処理を行っていきます
+        $(function () {
+            // ボタン押下イベントを発生
+            $("#button1").on("click", function () {
+                // 先ほどのIDからデータを引っ張ります
+                var textData = JSON.stringify({ "url1": $("#url1").val() });
+                // 非同期（Ajax）処理
+                $.ajax({
+                    type: 'POST',
+                    url: '/output',
+                    data: textData,
+                    contentType: 'application/json',
+                    success: function (data) {
+                        var result = data.ResultSet.result;
+                        $("#stock").text("欠品率は" + result + "%です");
+                    }
+                });
+            });
+        });
+
+    </script>
+</body>
+
+</html>

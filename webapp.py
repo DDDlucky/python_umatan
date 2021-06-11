@@ -4,6 +4,7 @@ import time
 import pandas as pd
 import requests
 import datetime
+from flask import Flask,request,render_template,jsonify
 
 options = Options()
 driver = webdriver.Chrome(options=options)
@@ -55,7 +56,7 @@ def slack_Send(df):
   }
 
   today = datetime.date.today()
-  out_of_stock_rate = df.stock_flg.sum()/len(df)
+  
 
   params = {
     "token": TOKEN,
@@ -67,11 +68,28 @@ def slack_Send(df):
   requests.post(url="https://slack.com/api/files.upload", params=params, files=files)
 
 
-def main():
-  url = "https://search.rakuten.co.jp/search/mall/ANKER/?f=0"
+# def main():
+#   url = "https://search.rakuten.co.jp/search/mall/ANKER/?f=0"
+#   df = scr(url)
+#   print(df)
+#   slack_Send(df)
+
+app = Flask(__name__)
+@app.route("/")
+def check():
+  return render_template("index.html")
+
+@app.route("/output", methods=["POST"])
+def output():
+  url = request.json["url"]
   df = scr(url)
   print(df)
-  slack_Send(df)
+  out_of_stock_rate = df.stock_flg.sum()/len(df)
+  print(out_of_stock_rate)
+  return_data = {
+    "result": round(out_of_stock_rate*100, 1 )
+  }
+  return jsonify(ResultSet=return_data)
 
 if __name__ == "__main__":
-  main()
+  app.run()
