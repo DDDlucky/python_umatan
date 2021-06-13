@@ -24,10 +24,22 @@
   </div>
   <script type="text/javascript">
     $(function () {
-      $("button1").on("click", function () {
+      $("#button1").on("click", function () {
+        var textData = JSON.stringify({ "url1": $("url1").val() });
+        $.ajax({
+          type: "POST",
+          url: "/output",
+          data: textData,
+          contentType: "application/json",
+          success: function (data) {
+            var result = data.ResultSet.result;
+            $("#stock").text("欠品率は" + result + "%です");
+          }
+        });
 
-      })
-    })
+      });
+    });
+    });
 
   </script>
 </body>

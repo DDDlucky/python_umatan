@@ -6,13 +6,12 @@ import requests
 import datetime
 from flask import Flask,request,render_template,jsonify
 
-options = Options()
-driver = webdriver.Chrome(options=options)
-
 url = "https://search.rakuten.co.jp/search/mall/ANKER/?f=0"
 
 
 def scr(url):
+    options = Options()
+    driver = webdriver.Chrome(options=options)
     driver.get(url)
     time.sleep(2)
 
